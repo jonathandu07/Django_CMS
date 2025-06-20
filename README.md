@@ -257,4 +257,109 @@ Cela analysera ta config et signalera les erreurs.
 
 ---
 
-🎉 Voilà, tu as une base django CMS fonctionnelle et prête à être enrichie avec tes propres contenus ou modules.
+# 🎨 Templates & Placeholders dans django CMS
+
+## 🧱 Templates
+
+Les templates dans django CMS fonctionnent comme dans Django, avec l’héritage via `base.html`.
+
+Un template pour django CMS doit inclure :
+
+```html
+{% load cms_tags sekizai_tags %}
+<head>
+    {% render_block "css" %}
+</head>
+<body>
+    {% cms_toolbar %}
+    {% placeholder "content" %}
+    {% render_block "js" %}
+</body>
+```
+
+### Exemple de configuration dans `settings.py`
+
+```python
+CMS_TEMPLATES = [
+    ('bootstrap5.html', 'Bootstrap 5'),
+    ('minimal.html', 'Minimal'),
+    ('whitenoise-static-files-demo.html', 'Démo Fichiers Statiques'),
+]
+```
+
+> 📁 Les templates se trouvent dans `backend/templates/` dans le projet quickstart.
+
+---
+
+## 🧩 Placeholders
+
+Un **placeholder** est une zone dynamique dans le HTML que le CMS remplit avec du contenu stocké en base de données.
+
+```html
+{% block content %}
+    {% placeholder "Feature" %}
+    {% placeholder "Content" %}
+    {% placeholder "Splashbox" %}
+{% endblock %}
+```
+
+> Pour voir les zones disponibles, passe en mode **Structure** via l’interface (en haut à droite).
+
+---
+
+## ♻️ Aliases statiques (ex : pied de page)
+
+Les aliases statiques sont utiles pour afficher **le même contenu sur plusieurs pages** (comme un footer géré via l’interface).
+
+### Étapes :
+
+1. Installer :
+
+```bash
+pip install djangocms-alias
+```
+
+2. Ajouter à `INSTALLED_APPS` :
+
+```python
+"djangocms_alias",
+```
+
+3. Dans `base.html`, insérer :
+
+```html
+{% load djangocms_alias_tags %}
+
+{% block content %}
+    ...
+    <footer>
+        {% static_alias 'footer' %}
+    </footer>
+{% endblock %}
+
+{% render_block "js" %}
+```
+
+4. Une fois ajouté, va dans le menu “Aliases…” pour l’éditer depuis le CMS.
+
+> 📝 Tu peux créer ou modifier son contenu comme une page normale. Le contenu est partagé sur toutes les pages.
+
+---
+
+## 📂 Menus dynamiques
+
+Pour afficher le menu du CMS :
+
+```html
+{% load menu_tags %}
+
+<ul class="nav">
+    {% show_menu 0 100 100 100 %}
+</ul>
+```
+
+> `show_menu` affiche la hiérarchie des pages. Les chiffres définissent la profondeur mais peuvent rester tels quels.
+
+---
+
+🎉 Avec cela, tu peux créer des templates dynamiques, gérés visuellement via l'interface de django CMS, tout en gardant le contrôle sur le HTML.
