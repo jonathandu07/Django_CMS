@@ -909,4 +909,133 @@ Si tu veux gérer en même temps les **questions associées (ForeignKey)**, il f
 
 ---
 
-🎉 Tu viens d’intégrer un wizard de création pour ton modèle dans l’interface de django CMS !
+# 🧩 Guide général sur les Plugins dans django CMS
+
+Les **CMS Plugins** permettent d’insérer des éléments dynamiques dans une page, un bloc ou un placeholder django CMS. Ils sont **réutilisables** et peuvent afficher automatiquement des données venant d’un autre modèle Django.
+
+---
+
+## 🤔 Pourquoi créer un plugin ?
+
+Tu as besoin d’un plugin si tu veux :
+- Publier dynamiquement du contenu venant d’une autre app Django
+- Éviter de modifier manuellement des pages statiques
+- Réutiliser un même composant sur plusieurs pages avec des paramètres différents
+
+**Exemple** : une maison de disques utilise un plugin "Dernières sorties" qui affiche les nouveaux albums depuis la base de données sans avoir à modifier la page.
+
+---
+
+## 🧱 Structure d’un plugin
+
+Un plugin suit la logique **Modèle – Vue – Template** (MVT) de Django :
+
+| Composant       | Rôle                                 | Classe Django CMS               |
+|------------------|--------------------------------------|----------------------------------|
+| Modèle (facultatif) | Configuration du plugin              | `CMSPlugin`                     |
+| Vue               | Logique métier et affichage         | `CMSPluginBase` (hérite de `ModelAdmin`) |
+| Template          | Rendu HTML                          | Fichier HTML dans `templates/`   |
+
+📌 Le modèle est **optionnel**. Tu peux créer un plugin sans modèle si son comportement est unique et fixe.
+
+---
+
+## 🛠️ Exemple concret
+
+- Un plugin sans configuration : toujours le même contenu (ex. "Top des ventes 7 derniers jours").
+- Un plugin configurable : choix d’une catégorie, d’un artiste, ou d’un délai personnalisé (7, 30, 90 jours, etc.).
+
+---
+
+## ⚙️ Options disponibles depuis `ModelAdmin`
+
+`CMSPluginBase` hérite de `ModelAdmin`, donc tu peux utiliser :
+
+```python
+    exclude
+    fields
+    fieldsets
+    form
+    inlines
+    readonly_fields
+```
+
+Mais certaines options **n’ont aucun effet** (ex. pagination admin ou recherche) :
+
+```python
+    actions
+    list_display
+    ordering
+    search_fields
+    date_hierarchy
+```
+
+---
+
+## 🔁 Résumé
+
+- Un plugin = logique Python + rendu HTML + éventuellement un modèle
+- Il s’insère dans n’importe quel **placeholder**
+- Il permet de garder ton site à jour automatiquement
+- Il est **réutilisable** avec des paramètres différents sur plusieurs pages
+
+---
+
+# 🔗 Application Hooks (AppHooks) dans django CMS
+
+Un **AppHook** permet d'attacher une application Django à une page django CMS, pour une intégration **totale** : menu, URL, droits, publication, etc.
+
+---
+
+## ⚙️ Pourquoi utiliser un AppHook ?
+
+Prenons un exemple : tu as une application Django qui affiche des **records olympiques**.
+
+### Si tu l'ajoutes juste dans `urls.py` :
+- Accessible via `/records/`
+- ✅ Fonctionne
+- ❌ Pas intégré au CMS :
+  - Elle n’apparaît pas dans le menu
+  - Le CMS peut créer une page `/records/` qui sera en conflit
+  - Pas de gestion de publication, permissions, ou historique
+
+### Si tu utilises un **AppHook** :
+- L'app est attachée à une **page CMS**
+- Le CMS **gère l’URL et les sous-URLs** (ex: `/records/1984`)
+- Les pages sont **déplaçables dans l’arborescence CMS**
+- Tu peux **appliquer les workflows** CMS à l'app
+
+---
+
+## 🧱 Comment ça marche ?
+
+1. Crée une classe AppHook (`CMSApp`)
+2. Enregistre-la avec `apphook_pool.register`
+3. Attache-la à une page dans les **Paramètres avancés**
+4. Publie la page → l’app est active
+
+---
+
+## 🔁 Plusieurs AppHooks pour la même app
+
+Tu peux :
+- Attacher **plusieurs fois** la même app sur des pages différentes
+- Fournir **des configurations différentes** par page
+
+### Exemple :
+- `/athlétisme/` affiche les résultats d’athlétisme
+- `/cyclisme/` affiche ceux du cyclisme
+
+Tu peux créer une **classe de configuration d’AppHook** avec des champs spécifiques, visibles dans l’admin.
+
+---
+
+## ⚠️ Attention
+
+- Un AppHook **n’est actif que s’il est attaché à une page publiée**
+- Il **englobe tous les chemins sous-jacents** (ex: `/records/**`)
+- Évite donc de créer des **sous-pages** manuelles sous une page apphookée
+
+---
+
+🎉 Avec les AppHooks, tu peux intégrer n'importe quelle application Django dans l'arborescence CMS avec une flexibilité maximale !
