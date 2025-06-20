@@ -1,5 +1,73 @@
 # Django_CMS
 AutoFormation Django CMS
+
+# 🧭 Sommaire Django CMS
+
+- [📘 Installer django CMS](#-installer-django-cms)
+  - [🔧 Prérequis](#-prérequis)
+  - [🚀 Méthode 1 – Installation rapide avec Docker](#-méthode-1--installation-rapide-avec-docker)
+  - [🔧 Méthode 2 – Installation manuelle (sans Docker)](#-méthode-2--installation-manuelle-sans-docker)
+  - [🧩 Ajouter django CMS à un projet existant](#-ajouter-django-cms-à-un-projet-django-existant)
+  - [📁 Templates et fichiers statiques](#-templates-et-fichiers-statiques)
+  - [🔌 Plugins recommandés](#-plugins-recommandés)
+  - [✅ Vérification finale](#-vérification-finale)
+
+- [🎨 Templates & Placeholders](#-templates--placeholders-dans-django-cms)
+  - [🧱 Templates](#-templates)
+  - [🧩 Placeholders](#-placeholders)
+  - [♻️ Aliases statiques](#-aliases-statiques-ex--pied-de-page)
+  - [📂 Menus dynamiques](#-menus-dynamiques)
+
+- [🔗 Intégration d’applications](#-intégration-dapplications-dans-django-cms)
+  - [🗳 Exemple : intégrer une app de sondages](#-exemple--intégrer-une-app-de-sondages)
+  - [🎨 Améliorer l'intégration visuelle](#-améliorer-lintégration-visuelle)
+  - [🧩 Créer l’app d’intégration CMS](#-créer-lapp-dintégration-cms)
+
+- [🔌 Créer un Plugin personnalisé](#-créer-un-plugin-dans-django-cms-intégration-de-sondage)
+  - [🧬 Modèle du plugin](#-modèle-du-plugin)
+  - [⚙️ Classe du plugin](#️-classe-du-plugin)
+  - [🖼️ Template du plugin](#️-template-du-plugin)
+  - [✅ Tester le plugin](#-tester-le-plugin)
+
+- [🔁 Intégration via AppHook](#-intégration-via-apphook-dans-django-cms)
+  - [🧩 Créer un AppHook](#-créer-un-apphook)
+  - [⚙️ Alternative : URLs manuelles](#️-alternative--urls-manuelles-si-besoin)
+  - [🧼 Nettoyer urls.py](#-nettoyer-urlspy)
+  - [🌐 Attacher l’AppHook à une page](#-attacher-lapphook-à-une-page)
+
+- [🧰 Étendre la Toolbar](#-étendre-la-barre-doutils-toolbar-dans-django-cms)
+  - [🪄 Ajouter un menu Sondages](#-ajouter-un-menu-sondages)
+  - [🖱️ Ajouter des boutons (facultatif)](#️-ajouter-des-boutons-facultatif)
+  - [🎯 Limiter l’affichage aux pages pertinentes](#-limiter-laffichage-aux-pages-pertinentes)
+
+- [🧭 Étendre le menu de navigation](#-étendre-le-menu-de-navigation-dans-django-cms)
+
+- [🧙‍♂️ Ajouter un Wizard de création](#-création-de-contenu-avec-un-wizard-dans-django-cms)
+
+- [🧩 Guide général sur les Plugins](#-guide-général-sur-les-plugins-dans-django-cms)
+
+- [🔗 AppHooks – Rappel complet](#-application-hooks-apphooks-dans-django-cms)
+
+- [📰 Système de publication](#-système-de-publication-dans-django-cms)
+
+- [🌐 Gestion multilingue](#-gestion-multilingue-avec-django-cms)
+
+- [🇫🇷🌍 Internationalisation](#internationalisation-avec-django-cms-)
+
+- [🎛️ Permissions et droits](#-permissions-dans-django-cms)
+
+- [🔍 Intégrer la recherche](#-recherche-dans-django-cms)
+
+- [📱 Appareils tactiles et compatibilité](#utiliser-des-appareils-tactiles-avec-django-cms)
+
+- [🎨 Schémas de couleurs (clair/foncé)](#schémas-de-couleurs-clairfoncé-avec-django-cms)
+
+- [🧭 Fonctionnement du menu CMS](#-fonctionnement-du-système-de-menus-dans-django-cms)
+
+- [🌐 Intégration frontend](#frontend-integration-avec-django-cms)
+
+
+
 # 📘 Installer django CMS
 
 ## 🔧 Prérequis
