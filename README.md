@@ -1524,3 +1524,82 @@ Fonctionnent bien :
 - Ajoutez du **padding** aux éléments éditables.
 - Ne testez pas en navigation privée sur mobile.
 - Testez vos gabarits avec **la barre django CMS activée** sur un appareil tactile réel.
+
+
+---
+
+
+# Schémas de couleurs (clair/foncé) avec Django CMS
+
+## 🔒 Scope
+
+⚠️ **Important** : Ces options ne concernent que l’interface d’administration et d’édition de django CMS. Le site public n’est pas concerné.
+
+Pour que le thème soit effectif, vous devez installer le package `djangocms-admin-style` (v3.2+). Sinon, c’est le thème de Django qui est utilisé (souvent en fonction des préférences du navigateur).
+
+---
+
+## 🎨 Changer le thème (CMS_COLOR_SCHEME)
+
+Dans `settings.py`, ajoutez :
+
+```python
+CMS_COLOR_SCHEME = "light"  # par défaut
+# CMS_COLOR_SCHEME = "dark"
+# CMS_COLOR_SCHEME = "auto"  # selon préférence navigateur/OS
+```
+
+### 💡 Astuce
+Si vous forcez un thème clair/sombre, ajoutez `data-theme` à la balise HTML pour éviter le "flicker" au chargement :
+
+```html
+<html data-theme="light">
+```
+
+🆕 Depuis `django CMS 3.11.4`, on utilise `data-theme` (et plus `data-color-scheme`).
+
+---
+
+## 🌗 Bouton pour changer de thème (CMS_COLOR_SCHEME_TOGGLE)
+
+Dans `settings.py` :
+
+```python
+CMS_COLOR_SCHEME_TOGGLE = True  # Affiche l’icône soleil/lune/auto dans la barre d’admin
+```
+
+---
+
+## ✏️ Adapter son CSS à la couleur
+
+- Utilisez le moins possible `color` ou `background-color` en dur.
+- Favorisez les variables CSS standard (de django CMS ou de Django).
+- Exemple recommandé :
+
+```css
+color: var(--dca-primary, var(--primary, #00bbff));
+```
+
+⚠️ **Évitez les media queries `@media (prefers-color-scheme: dark)`** — elles contournent les réglages forcés.
+
+---
+
+## 🎨 Variables CSS disponibles
+
+| Variable              | Couleur django CMS | Fallback Django        | Hex par défaut |
+|----------------------|--------------------|------------------------|----------------|
+| `--dca-white`        | #ffffff            | `--body-bg`            | #ffffff        |
+| `--dca-gray`         | #666               | `--body-quiet-color`   | #666           |
+| `--dca-gray-lightest`| #f2f2f2            | `--darkened-bg`        | #f8f8f8        |
+| `--dca-gray-lighter` | #ddd               | `--border-color`       | #ccc           |
+| `--dca-primary`      | #00bbff            | `--primary`            | #79aec8        |
+| `--dca-black`        | #000               | `--body-fg`            | #303030        |
+
+---
+
+## ✅ Recommandations synthétiques
+
+- Blanc : `var(--dca-white, var(--body-bg, #fff))`
+- Gris : `var(--dca-gray, var(--body-quiet-color, #666))`
+- Primaire : `var(--dca-primary, var(--primary, #0bf))`
+- Noir : `var(--dca-black, var(--body-fg, #000))`
