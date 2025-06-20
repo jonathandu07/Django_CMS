@@ -847,4 +847,66 @@ menu_pool.register_menu(PollsMenu)
 
 ---
 
-🎉 Tu as maintenant un menu dynamique lié à ton application Django, intégré à la navigation de django CMS !
+# 🧙‍♂️ Création de contenu avec un Wizard dans django CMS
+
+Tu peux ajouter ton propre **assistant de création** (wizard) pour permettre aux utilisateurs de créer des objets via le bouton "Créer" de la barre d’outils du CMS.
+
+---
+
+## 📝 Étape 1 : Formulaire pour le modèle
+
+Dans `polls_cms_integration/forms.py` :
+
+```python
+from django import forms
+from polls.models import Poll
+
+class PollWizardForm(forms.ModelForm):
+    class Meta:
+        model = Poll
+        exclude = []  # Tous les champs sont inclus
+```
+
+---
+
+## ⚙️ Étape 2 : Enregistrer le wizard
+
+Dans `polls_cms_integration/cms_wizards.py` :
+
+```python
+from cms.wizards.wizard_base import Wizard
+from cms.wizards.wizard_pool import wizard_pool
+from polls_cms_integration.forms import PollWizardForm
+
+class PollWizard(Wizard):
+    pass
+
+poll_wizard = PollWizard(
+    title="Sondage",
+    weight=200,  # ordre d'affichage dans la liste
+    form=PollWizardForm,
+    description="Créer un nouveau sondage",
+)
+
+wizard_pool.register(poll_wizard)
+```
+
+---
+
+## ▶️ Tester le wizard
+
+1. Redémarre le serveur
+2. Va sur une page CMS
+3. Clique sur **Créer** dans la barre d’outils
+4. Tu verras l’option **Sondage** apparaître : un formulaire simple s’ouvrira dans une fenêtre modale
+
+---
+
+📌 Remarque :
+
+Dans cet exemple, seul l’objet `Poll` est créé.  
+Si tu veux gérer en même temps les **questions associées (ForeignKey)**, il faudrait un formulaire plus complexe (inline, formset…), ce qui dépasse le cadre de ce tutoriel.
+
+---
+
+🎉 Tu viens d’intégrer un wizard de création pour ton modèle dans l’interface de django CMS !
