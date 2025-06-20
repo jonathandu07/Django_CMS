@@ -1251,5 +1251,107 @@ django CMS suit l’ordre suivant pour détecter la langue à utiliser :
 
 ---
 
-✅ Avec cette configuration, tu peux offrir une expérience utilisateur cohérente, multilingue et accessible à tous.
 
+# 🎛️ Permissions dans django CMS
+
+## 🧠 Introduction
+Le système de permissions de **django CMS** est **puissant, granulaire et multi-niveaux**. Il peut fonctionner en deux modes selon la configuration de `CMS_PERMISSION` :
+- `False` : Mode simple – utilise uniquement les permissions standard de Django (Users et Groups).
+- `True` : Mode avancé – ajoute des permissions **au niveau des pages** (row-level) dans le CMS.
+
+---
+
+## 🔐 Permissions utilisateur clés
+
+Dans l’admin Django > *Authentication and Authorization*, vous pouvez attribuer ces permissions :
+### Pour django CMS :
+- `cms | plugin`
+- `cms | page`
+- `cms | placeholder`
+- `cms | placeholder reference`
+- ⚠️ Permission spéciale : `cms | placeholder | Can use Structure mode`
+
+### Pour les paquets tiers :
+- **djangocms-alias** :
+  - `alias`, `alias content`, `category`
+- **djangocms-frontend** :
+  - `UI item` (nécessite la commande `python manage.py frontend sync_permissions`)
+- **djangocms-text** :
+  - `text`
+- **djangocms-versioning** :
+  - `alias content version`, `page content version`, `version`
+
+---
+
+## 🌍 Permissions globales et locales
+
+Avec `CMS_PERMISSION = True`, il faut aussi **donner des droits aux pages** (en plus des droits utilisateur).
+
+### Permissions globales
+Attribuées à **toutes les pages** d’un site (ou sous-site).  
+Gérées dans l’admin : `django CMS > Pages global permissions`.
+
+### Permissions par page
+Attribuées à une page spécifique (ou à ses enfants / descendants).  
+Gérées depuis la **toolbar** : `Page > Permissions`.
+
+> 🧠 Un utilisateur non superuser a besoin d’au moins une permission globale ou locale **+** les permissions Django correspondantes.
+
+---
+
+## ✅ Options de permission par page
+
+Peuvent être attribuées à un **utilisateur** ou un **groupe** :
+
+- `Can add`
+- `Can edit`
+- `Can delete`
+- `Can publish`
+- `Can change advanced settings`
+- `Can change permissions`
+- `Can move`
+
+⚠️ Pour modifier les plugins, les permissions Django standards sont également nécessaires :
+- `cms | cms plugin | Can edit cms plugin`
+
+---
+
+## 🛠️ Permissions spéciales
+
+- `Login required` : page visible uniquement pour les utilisateurs authentifiés.
+- `Menu visibility` : contrôle l’apparition dans les menus (tous, connectés uniquement, anonymes uniquement).
+- `View restrictions` : restreint la visibilité à certains groupes/utilisateurs (hors éditeurs autorisés).
+
+---
+
+## 🧩 Modèles d’admin supplémentaires
+
+Avec `CMS_PERMISSION = True`, deux nouveaux modèles apparaissent dans l’admin CMS :
+- `User groups (page)`
+- `Users (page)`
+
+👉 Ceux-ci reflètent simplement les Groupes et Utilisateurs Django déjà existants.
+
+---
+
+## 🧬 Stratégies de permission
+
+- **Utiliser des Groupes, pas des Utilisateurs individuels** : simplifie la gestion.
+- **Composer les permissions avec des Groupes** :
+    - Exemple : Groupe "Éditeur basique" = peut éditer, mais pas créer.
+    - Groupe "Éditeur principal" = peut créer des pages.
+
+- **Deux axes à gérer** :
+  1. Ce qu’un utilisateur peut faire (publier, créer, modifier...)
+  2. Où il peut le faire (ex. uniquement sur le sous-site Europe)
+
+---
+
+## ✅ Exemple concret
+
+Vous pouvez avoir :
+- Groupe `Europe` : assigné aux éditeurs qui gèrent les pages européennes.
+- Groupe `Weblog` : donne accès au blog uniquement.
+- Groupe `Administrateurs` : a tous les droits sur tout le site.
+
+Ensuite, vous n’avez qu’à affecter les utilisateurs aux groupes adaptés.
