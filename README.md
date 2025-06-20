@@ -1835,3 +1835,68 @@ CMS.$(window).on('cms-content-refresh', function () {
 
 🧠 **Astuce** : si vos composants ne se réinitialisent pas après un ajout/suppression de plugin, pensez à vérifier que leurs initialisations sont bien déclenchées **à chaque mise à jour du DOM**.
 
+---
+
+# 🧭 Sommaire du guide django CMS
+
+## 📦 Mise en place
+- [🔧 Prérequis](#-prérequis)
+- [🚀 Installation rapide (avec Docker)](#-méthode-1--installation-rapide-avec-docker)
+- [🔧 Installation manuelle (sans Docker)](#-méthode-2--installation-manuelle-sans-docker)
+
+## 🧩 Ajouter django CMS à un projet existant
+- [⚙️ Modifier settings.py](#-ajouter-django-cms-à-un-projet-django-existant)
+- [📁 Gérer les templates et les fichiers statiques](#-templates-et-fichiers-statiques)
+
+## 🔌 Extensions et modules recommandés
+- [📦 Plugins à installer](#-plugins-recommandés)
+- [✅ Vérification de la configuration](#-vérification-finale)
+
+## 🎨 Mise en page avec django CMS
+- [🧱 Templates & Placeholders](#-templates--placeholders-dans-django-cms)
+- [♻️ Aliases statiques (footer, header...)](#-aliases-statiques-ex--pied-de-page)
+- [📂 Menus dynamiques](#-menus-dynamiques)
+
+## 🧩 Intégrer une application Django
+- [📌 Pourquoi intégrer une app ?](#-intégration-dapplications-dans-django-cms)
+- [🗳 Exemple avec l’app de sondages](#-exemple--intégrer-une-app-de-sondages-polls)
+- [🔌 Créer un plugin CMS](#-créer-un-plugin-dans-django-cms-intégration-de-sondage)
+- [🔁 AppHook : raccorder une app à une page](#-intégration-via-apphook-dans-django-cms)
+
+## 🛠️ Personnaliser l’administration
+- [🧰 Étendre la barre d’outils (Toolbar)](#-étendre-la-barre-doutils-toolbar-dans-django-cms)
+- [🧭 Ajouter un menu personnalisé](#-étendre-le-menu-de-navigation-dans-django-cms)
+
+## 🧙‍♂️ Assistants de création (Wizard)
+- [📝 Créer un Wizard personnalisé](#-création-de-contenu-avec-un-wizard-dans-django-cms)
+
+## 🧩 CMS Plugins – Guide général
+- [🤔 Pourquoi créer un plugin ?](#-guide-général-sur-les-plugins-dans-django-cms)
+
+## 🔗 AppHooks (approfondi)
+- [📚 À quoi servent les AppHooks ?](#-application-hooks-apphooks-dans-django-cms)
+
+## 📰 Système de publication
+- [📤 Gérer les brouillons, publications, archivages…](#-système-de-publication-dans-django-cms)
+
+## 🌍 Multilingue et internationalisation
+- [🌐 Activer les langues et fallback](#-gestion-multilingue-avec-django-cms)
+- [🔧 Configuration avancée i18n/l10n](#internationalisation-avec-django-cms-)
+
+## 🔐 Permissions et sécurité
+- [🎛️ Attribuer les bons droits](#-permissions-dans-django-cms)
+
+## 🔎 Intégrer un moteur de recherche
+- [🔍 Utiliser django-haystack](#-recherche-dans-django-cms)
+
+## 📱 Utilisation sur tablette / mobile
+- [💡 Optimiser l’interface tactile](#utiliser-des-appareils-tactiles-avec-django-cms)
+
+## 🎨 Thème clair ou sombre
+- [🌗 Changer le thème de l’admin](#schémas-de-couleurs-clairfoncé-avec-django-cms)
+
+## 🧭 Comprendre le système de menus
+- [🌳 Soft Roots & Menu Extenders](#-fonctionnement-du-système-de-menus-dans-django-cms)
+
+## 💻 Intégration frontend
+- [📦 Adapter vos scripts JS et styles](#frontend-integration-avec-django-cms)
