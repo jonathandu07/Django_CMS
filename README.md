@@ -1355,3 +1355,93 @@ Vous pouvez avoir :
 - Groupe `Administrateurs` : a tous les droits sur tout le site.
 
 Ensuite, vous n’avez qu’à affecter les utilisateurs aux groupes adaptés.
+
+
+---
+
+
+# 🔍 Recherche dans django CMS
+
+## Introduction
+
+Avec l'arrivée de django CMS 4.x, l'ancien système de recherche `aldryn-search` est devenu obsolète. À la place, on recommande d'utiliser des outils comme `django-haystack`, `djangocms-haystack`, ou d'autres solutions externes.
+
+## Mise en place rapide avec django-haystack
+
+django-haystack permet d’indexer vos modèles et de les rendre accessibles via un moteur de recherche interne à votre projet.
+
+### Exemple minimal avec PageContent
+
+```python
+from cms.models import PageContent
+from haystack import indexes
+
+class PageContentIndex(indexes.SearchIndex, indexes.Indexable):
+    text = indexes.CharField(document=True, use_template=False)
+    title = indexes.CharField(indexed=False, stored=True)
+    url = indexes.CharField(indexed=False, stored=True)
+
+    def get_model(self):
+        return PageContent
+
+    def index_queryset(self, using=None):
+        return self.get_model().objects.filter(language=using)
+
+    def prepare(self, instance):
+        data = super().prepare(instance)
+        data["url"] = instance.page.get_absolute_url()
+        data["title"] = instance.title
+        data["text"] = data["title"] + (instance.meta_description or "")
+        return data
+```
+
+📝 Place ce fichier dans `search_indexes.py` à la racine d’une app déclarée dans `INSTALLED_APPS`.
+
+## Configuration de Haystack
+
+Ajoute la configuration suivante dans `settings.py` :
+
+```python
+HAYSTACK_CONNECTIONS = {
+  'default': {
+    "ENGINE": "haystack.backends.whoosh_backend.WhooshEngine",
+    "PATH": os.path.join(BASE_DIR, "search_index", "whoosh_index_default"),
+  },
+  "en": {
+    "ENGINE": "haystack.backends.whoosh_backend.WhooshEngine",
+    "PATH": os.path.join(BASE_DIR, "search_index", "whoosh_index_en"),
+  },
+  "de": {
+    "ENGINE": "haystack.backends.whoosh_backend.WhooshEngine",
+    "PATH": os.path.join(BASE_DIR, "search_index", "whoosh_index_de"),
+  }
+}
+```
+
+## Rebuild de l'index
+
+Lance cette commande pour générer ton index :
+
+```bash
+python manage.py rebuild_index
+```
+
+## Tester l’index avec SearchQuerySet
+
+```python
+from haystack.query import SearchQuerySet
+
+qs = SearchQuerySet(using="en")
+for result in qs.all():
+    print(result.text)
+```
+
+## Aller plus loin
+
+Tu peux :
+
+- Ajouter d'autres modèles personnalisés à l'index
+- Créer des vues pour la recherche
+- Créer un formulaire pour rechercher sur ton site
+
+💡 **Astuce** : adapte la logique d’indexation à ton propre système de versioning (ex : `djangocms-versioning`), en filtrant les contenus publiés ou brouillons selon le contexte.
