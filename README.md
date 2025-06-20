@@ -1184,5 +1184,72 @@ CMS_LANGUAGES = {
 
 ---
 
-💡 **Conclusion**  
-django CMS gère très bien le multilingue si on configure correctement les langues disponibles, les fallback et le comportement du menu.
+
+# Internationalisation avec django CMS 🇫🇷🌍
+
+django CMS est particulièrement performant dans la gestion des contenus multilingues. Il peut être configuré de manière fine pour répondre à des besoins variés en matière d’internationalisation (i18n) et de localisation (l10n).
+
+---
+
+## 🎯 Objectif
+Permettre à un site de servir dynamiquement ses contenus dans plusieurs langues, selon les préférences de l’utilisateur et les traductions disponibles.
+
+---
+
+## 🔧 Configuration dans `CMS_LANGUAGES`
+
+La clé `CMS_LANGUAGES` du fichier `settings.py` permet :
+- de définir les langues disponibles,
+- de configurer les langues par site,
+- d’activer ou non les traductions par défaut,
+- de définir des langues de repli (*fallbacks*).
+
+Exemple :
+```python
+CMS_LANGUAGES = {
+    1: [
+        {'code': 'fr', 'name': 'Français', 'fallbacks': ['en'], 'public': True},
+        {'code': 'en', 'name': 'English', 'fallbacks': ['fr'], 'public': True},
+    ]
+}
+```
+
+---
+
+## 🌐 URLs multilingues
+
+Pour que les URLs soient sensibles à la langue (`/en/`, `/fr/`, etc.), tu dois utiliser `i18n_patterns()` dans ton `urls.py` :
+
+```python
+from django.conf.urls.i18n import i18n_patterns
+
+urlpatterns = i18n_patterns(
+    path('admin/', admin.site.urls),
+    path('', include('cms.urls')),
+)
+```
+
+Cela permet d’activer la prise en charge des préfixes linguistiques dans les routes.
+
+---
+
+## 🌍 Détection de la langue de l’utilisateur
+
+django CMS suit l’ordre suivant pour détecter la langue à utiliser :
+1. Le **code de langue dans l’URL** (`/en/`, `/fr/`)
+2. La **langue stockée dans la session** (via `request.session`)
+3. La **langue en cookie** (avec `LanguageCookieMiddleware`)
+4. La **langue préférée du navigateur** (header `Accept-Language`)
+5. La langue par défaut (`LANGUAGE_CODE` dans `settings.py`)
+
+---
+
+## 📚 Ressources utiles
+
+- [Django - Traduction et internationalisation](https://docs.djangoproject.com/fr/stable/topics/i18n/)
+- [django CMS - Multilingue](https://docs.django-cms.org/)
+
+---
+
+✅ Avec cette configuration, tu peux offrir une expérience utilisateur cohérente, multilingue et accessible à tous.
+
