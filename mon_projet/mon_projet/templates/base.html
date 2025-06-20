@@ -1,2 +1,32 @@
-{# Replace this with your base template #}
+<head>
+    ...
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+</head>
 {% extends "bootstrap5/base.html" %}
+
+{% block content %}
+<div class="min-h-screen bg-gray-100 text-gray-800">
+  <header class="bg-white shadow-md">
+    <div class="max-w-7xl mx-auto px-4 py-6 sm:px-6 lg:px-8">
+      <h1 class="text-3xl font-bold text-gray-900">Bienvenue sur mon site</h1>
+    </div>
+  </header>
+
+  <main class="py-10">
+    <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="bg-white rounded-lg shadow p-6">
+        <p class="text-lg mb-4">
+          Ceci est une page d’accueil personnalisée avec <strong>Tailwind CSS</strong>.
+        </p>
+        <a href="/admin/" class="inline-block bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition">
+          Accéder à l’administration
+        </a>
+      </div>
+    </div>
+  </main>
+
+  <footer class="bg-gray-200 mt-10 py-4 text-center text-sm text-gray-600">
+    © {{ now|date:"Y" }} — Mon projet Django avec Tailwind
+  </footer>
+</div>
+{% endblock %}
