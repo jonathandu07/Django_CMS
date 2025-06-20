@@ -461,6 +461,192 @@ INSTALLED_APPS += ["polls_cms_integration"]
 
 ---
 
-💡 Prochaine étape : créer un **plugin CMS** qui affiche un sondage dans une page.
+# 🔌 Créer un Plugin dans django CMS (intégration de sondage)
 
-Souhaites-tu que je te prépare ce plugin complet directement ?
+Nous allons créer un **plugin django CMS** qui affiche un sondage provenant de l’app `polls`.
+
+---
+
+## 🧬 Modèle du plugin
+
+Dans `polls_cms_integration/models.py` :
+
+```python
+from django.db import models
+from cms.models import CMSPlugin
+from polls.models import Poll
+
+class PollPluginModel(CMSPlugin):
+    poll = models.ForeignKey(Poll, on_delete=models.CASCADE)
+
+    def __str__(self):
+        return self.poll.question
+```
+
+> 🔁 Ce modèle hérite de `CMSPlugin` et non de `models.Model`.
+
+Ensuite, crée les migrations :
+
+```bash
+python manage.py makemigrations polls_cms_integration
+python manage.py migrate polls_cms_integration
+```
+
+---
+
+## ⚙️ Classe du plugin
+
+Crée un fichier `polls_cms_integration/cms_plugins.py` :
+
+```python
+from cms.plugin_base import CMSPluginBase
+from cms.plugin_pool import plugin_pool
+from polls_cms_integration.models import PollPluginModel
+from django.utils.translation import gettext as _
+
+@plugin_pool.register_plugin
+class PollPluginPublisher(CMSPluginBase):
+    model = PollPluginModel
+    module = _("Sondages")
+    name = _("Plugin Sondage")
+    render_template = "polls_cms_integration/poll_plugin.html"
+
+    def render(self, context, instance, placeholder):
+        context.update({"instance": instance})
+        return context
+```
+
+💡 Convention de nommage :
+- `PollPluginModel` → modèle
+- `PollPluginPublisher` → classe du plugin
+
+---
+
+## 🖼️ Template du plugin
+
+Crée le fichier :  
+`polls_cms_integration/templates/polls_cms_integration/poll_plugin.html`
+
+Contenu :
+
+```html
+<h1>{{ instance.poll.question }}</h1>
+
+<form action="{% url 'polls:vote' instance.poll.id %}" method="post">
+    {% csrf_token %}
+    <div class="form-group">
+        {% for choice in instance.poll.choice_set.all %}
+        <div class="radio">
+            <label>
+                <input type="radio" name="choice" value="{{ choice.id }}">
+                {{ choice.choice_text }}
+            </label>
+        </div>
+        {% endfor %}
+    </div>
+    <input type="submit" value="Voter" />
+</form>
+```
+
+---
+
+## ✅ Tester le plugin
+
+1. Redémarre le serveur Django (`runserver`)
+2. Connecte-toi au CMS
+3. Ajoute une instance du **Plugin Sondage** dans une page (via un placeholder)
+
+Tu peux maintenant afficher un sondage Django directement dans une page CMS !
+
+---
+
+# 🔁 Intégration via AppHook dans django CMS
+
+Nous allons connecter dynamiquement l’application `polls` à une page django CMS grâce à un **AppHook**, sans passer par `urls.py`.
+
+---
+
+## 🧩 Créer un AppHook
+
+Dans l’app `polls_cms_integration`, crée un fichier `cms_apps.py` :
+
+```python
+from cms.app_base import CMSApp
+from cms.apphook_pool import apphook_pool
+
+@apphook_pool.register
+class PollsApphook(CMSApp):
+    app_name = "polls"
+    name = "Application Sondages"
+
+    def get_urls(self, page=None, language=None, **kwargs):
+        return ["polls.urls"]
+```
+
+> `app_name` sert de namespace, `name` apparaît dans les réglages CMS de la page.
+
+---
+
+## ⚙️ Alternative : URLs manuelles (si besoin)
+
+Tu peux aussi déclarer les URLs directement :
+
+```python
+from django.urls import path
+from polls import views
+
+def get_urls(self, page=None, language=None, **kwargs):
+    return [
+        path("<int:pk>/results/", views.ResultsView.as_view(), name="results"),
+        path("<int:pk>/vote/", views.vote, name="vote"),
+        path("<int:pk>/", views.DetailView.as_view(), name="detail"),
+        path("", views.IndexView.as_view(), name="index"),
+    ]
+```
+
+---
+
+## 🧼 Nettoyer `urls.py`
+
+❌ Supprime cette ligne dans `urls.py` :
+
+```python
+path('polls/', include('polls.urls', namespace='polls'))
+```
+
+> Sinon conflit : `URL namespace 'polls' isn't unique`.
+
+---
+
+## 🔄 Redémarrer le serveur
+
+Redémarre le serveur pour que `cms_apps.py` soit pris en compte :
+
+```bash
+python manage.py runserver
+```
+
+💡 Astuce : pour éviter les redémarrages à chaque fois, ajoute dans `MIDDLEWARE` :
+
+```python
+"cms.middleware.utils.ApphookReloadMiddleware",
+```
+
+---
+
+## 🌐 Attacher l’AppHook à une page
+
+1. Crée une **nouvelle page CMS**
+2. Ouvre les **Paramètres avancés** de la page
+3. Dans “Application”, choisis **Application Sondages**
+4. Enregistre
+
+> 🔄 Recharge la page CMS → l’app `polls` est maintenant disponible directement depuis cette page.
+
+---
+
+🚨 **Attention** : Ne crée **pas de sous-pages** sous une page avec AppHook → les URL sont redirigées vers l'app intégrée.
+
+---
+
+🎉 Tu as maintenant lié l'application Django `polls` dynamiquement à ton site CMS !
