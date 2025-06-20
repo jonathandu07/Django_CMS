@@ -362,4 +362,105 @@ Pour afficher le menu du CMS :
 
 ---
 
-🎉 Avec cela, tu peux créer des templates dynamiques, gérés visuellement via l'interface de django CMS, tout en gardant le contrôle sur le HTML.
+# 🔗 Intégration d’applications dans django CMS
+
+## Pourquoi intégrer une app dans django CMS ?
+
+Intégrer une application ne signifie pas juste la faire cohabiter avec django CMS, mais **lier leur logique** pour créer un site cohérent, facilement gérable et extensible via le CMS.
+
+👍 Avantage : tu n’as **pas besoin de modifier l’application** originale (utile pour les apps tierces).
+
+---
+
+## 🗳 Exemple : Intégrer une app de sondages (polls)
+
+### 1. Installer l’app `polls`
+
+```bash
+pip install git+http://git@github.com/divio/django-polls.git#egg=polls
+```
+
+Ajoute `'polls'` à `INSTALLED_APPS` dans `settings.py`.
+
+### 2. Ajouter les URLs
+
+```python
+from django.urls import re_path, include
+from django.conf.urls.i18n import i18n_patterns
+
+urlpatterns = i18n_patterns(
+    re_path(r'^admin/', include(admin.site.urls)),
+    re_path(r'^polls/', include('polls.urls')),
+    re_path(r'^', include('cms.urls')),
+)
+```
+
+> 🔁 Important : les URLs de django CMS doivent être en dernier.
+
+### 3. Migrer les données
+
+```bash
+python manage.py migrate polls
+```
+
+Va sur [http://localhost:8000/admin/](http://localhost:8000/admin/) → onglet **Polls**.
+
+Crée un sondage :
+
+- Question : *Quel navigateur préférez-vous ?*
+- Choix : Safari, Firefox, Chrome
+
+Visite ensuite : [http://localhost:8000/en/polls/](http://localhost:8000/en/polls/)
+
+---
+
+## 🎨 Améliorer l'intégration visuelle
+
+Par défaut, les templates de `polls` sont minimaux. Fais-les hériter de `base.html` :
+
+Crée ce fichier : `mysite/templates/polls/base.html` :
+
+```html
+{% extends 'base.html' %}
+
+{% block content %}
+    {% block polls_content %}
+    {% endblock %}
+{% endblock %}
+```
+
+Recharge `/polls/` : la page utilise maintenant le même design que le reste du site CMS.
+
+---
+
+## 🧩 Créer l’app d’intégration CMS
+
+### 1. Créer l’app dédiée
+
+```bash
+python manage.py startapp polls_cms_integration
+```
+
+Structure obtenue :
+
+```
+mon-projet/
+├── polls_cms_integration/
+│   ├── models.py, views.py, etc.
+```
+
+### 2. Ajouter à `INSTALLED_APPS`
+
+Dans `settings.py` :
+
+```python
+INSTALLED_APPS += ["polls_cms_integration"]
+```
+
+> Cette app servira à **relier polls au CMS** via un plugin personnalisé. Elle contiendra le code d’intégration (plugins, apphooks…).
+
+---
+
+💡 Prochaine étape : créer un **plugin CMS** qui affiche un sondage dans une page.
+
+Souhaites-tu que je te prépare ce plugin complet directement ?
