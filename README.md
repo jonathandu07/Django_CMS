@@ -109,8 +109,8 @@ docker compose up -d
 ### 1. Créer un environnement virtuel
 
 ```bash
-python3 -m venv .venv
-source .venv/bin/activate
+python -m venv .venv
+.venv\Scripts\activate
 pip install --upgrade pip
 pip install django-cms
 ```
