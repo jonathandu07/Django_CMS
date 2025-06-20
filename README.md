@@ -1445,3 +1445,82 @@ Tu peux :
 - Créer un formulaire pour rechercher sur ton site
 
 💡 **Astuce** : adapte la logique d’indexation à ton propre système de versioning (ex : `djangocms-versioning`), en filtrant les contenus publiés ou brouillons selon le contexte.
+
+
+---
+
+
+# Utiliser des appareils tactiles avec django CMS
+
+> ⚠️ **Important** :  
+> Ces remarques s’appliquent uniquement aux interfaces d’administration et d’édition de django CMS.  
+> Le site publié (frontend visible par les visiteurs) est **indépendant** et doit être optimisé séparément par le développeur.
+
+---
+
+## 🧠 Comportement général
+
+- **Double-clic vs tactile** :  
+  django CMS repose fortement sur le double-clic (édition rapide), mais le tactile n’a pas d’équivalent exact.  
+  → Une tape (tap) est interprétée intelligemment comme une action contextuelle :
+  - soit **édition** (équivalent d’un double-clic),
+  - soit **sélection** (équivalent d’un clic simple).
+
+- **Déplacement ou défilement** :  
+  Par exemple dans la *liste des pages*, certaines zones permettent :
+  - le **glisser-déposer** (repositionnement),
+  - d’autres le **scroll** (navigation verticale).
+
+- **Bulles d’aide (tooltips)** :  
+  Sur les appareils tactiles, les infobulles dépendantes du survol (**hover**) sont souvent indisponibles.
+
+---
+
+## 📱 Appareils compatibles connus
+
+> ⚠️ Les petits écrans (ex. téléphones) ne sont **pas adaptés** pour une utilisation efficace.
+
+Fonctionnent bien :
+- **iOS** : iPad Air 1, iPad Mini 4
+- **Android** : Sony Xperia Z2 Tablet, Galaxy Tab 4
+- **Windows** : Microsoft Surface
+
+---
+
+## 🎨 Intégration frontend
+
+- Le **toolbar** de django CMS repose sur un HTML/CSS propre et responsive.
+- Si vous utilisez Bootstrap, Foundation, etc., évitez :
+  - le CSS cassé ou mal indenté,
+  - des éléments avec peu de **padding** (problème de tap detection).
+
+---
+
+## ❗ Problèmes connus
+
+### 🧩 Généraux
+
+- Liens sans **padding suffisant** : difficilement éditables via tactile.
+- Menus de navigation uniquement composés de liens : difficile à double-cliquer.
+- Problèmes d’ajout de liens sur Android à cause du clavier.
+- Utilisation en **navigation privée** : ralentissements (absence de local storage → sessions Django utilisées).
+
+### ✍️ Problèmes avec CKEditor
+
+- Sur mobile :
+  - le clavier peut **mal se positionner**.
+  - l’éditeur peut se déplacer ou afficher des **artefacts** visuels (Safari/iOS).
+  - certains boutons semblent “manquants” mais sont encore **cliquables** (bug de rendu).
+
+### ⚙️ Problèmes Django Admin
+
+- Dans l’arborescence des pages, le **focus automatique** sur la barre de recherche déclenche le clavier au premier clic → comportement gênant sur mobile.
+
+---
+
+## ✅ Recommandations
+
+- Préférez une **tablette récente** ou un **hybride PC/tactile**.
+- Ajoutez du **padding** aux éléments éditables.
+- Ne testez pas en navigation privée sur mobile.
+- Testez vos gabarits avec **la barre django CMS activée** sur un appareil tactile réel.
