@@ -779,4 +779,72 @@ toolbar_pool.register(PollToolbar)
 
 ---
 
-🎉 Tu as maintenant un menu dédié dans la barre d’outils de django CMS, avec accès rapide à la gestion des sondages.
+# 🧭 Étendre le menu de navigation dans django CMS
+
+Actuellement, la navigation du site ne reflète que les **Pages CMS**.  
+Mais tu peux ajouter dynamiquement des entrées (nodes) dans le menu via le système de **CMSAttachMenu**.
+
+---
+
+## 🗂️ Créer un menu personnalisé
+
+Dans `polls_cms_integration`, crée le fichier `cms_menus.py` :
+
+```python
+from django.urls import reverse
+from django.utils.translation import gettext_lazy as _
+
+from cms.menu_bases import CMSAttachMenu
+from menus.base import NavigationNode
+from menus.menu_pool import menu_pool
+
+from polls.models import Poll
+
+class PollsMenu(CMSAttachMenu):
+    name = _("Menu Sondages")  # Nom visible dans l’admin
+
+    def get_nodes(self, request):
+        nodes = []
+        for poll in Poll.objects.all():
+            node = NavigationNode(
+                title=poll.question,
+                url=reverse("polls:detail", args=(poll.pk,)),
+                id=poll.pk,
+            )
+            nodes.append(node)
+        return nodes
+
+menu_pool.register_menu(PollsMenu)
+```
+
+---
+
+## 🎯 Explication
+
+- `CMSAttachMenu` : classe de base pour un menu attachable
+- `get_nodes()` : retourne une liste de `NavigationNode` à afficher
+- `menu_pool.register_menu()` : enregistre le menu
+
+---
+
+## 🔗 Lier ce menu à une page CMS
+
+1. Va sur la page où l’**apphook polls** est déjà attaché
+2. Ouvre les **Paramètres avancés**
+3. Dans **"Menu attaché"**, choisis **Menu Sondages**
+4. Enregistre
+
+---
+
+💡 Tu peux forcer un apphook à ajouter automatiquement un menu via une méthode avancée (cf. doc officielle).
+
+---
+
+📌 Remarques :
+
+- Si tu utilises des sous-pages, il faudra peut-être adapter le style du menu.
+- Ce menu est illustratif : la page polls liste déjà tous les sondages.
+
+---
+
+🎉 Tu as maintenant un menu dynamique lié à ton application Django, intégré à la navigation de django CMS !
