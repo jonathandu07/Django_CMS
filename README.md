@@ -1700,3 +1700,70 @@ Quand tu utilises le tag `{% show_menu %}` dans un template :
 - Chaque niveau de transformation (générateur/modificateur) est **enregistré et appliqué dynamiquement**
 - Les soft roots permettent d’**adapter le menu à son contexte**
 - Tu peux facilement créer des menus personnalisés en héritant des classes de base
+
+
+---
+
+
+
+# Frontend Integration avec django CMS
+
+## 🧱 Indépendance du frontend
+
+Django CMS **ne dépend d’aucun framework frontend particulier**. Vous pouvez utiliser ce que vous voulez : Bootstrap, Tailwind, Foundation, etc.  
+Le CMS ne fait **aucune supposition sur votre code HTML, CSS ou JavaScript**.
+
+## ⚙️ Exception : mode édition
+
+Lorsque vous activez la barre d’édition (`toolbar`) pour modifier du contenu en ligne, django CMS **injecte son propre JavaScript et ses propres styles**. Ces éléments peuvent :
+
+- perturber votre CSS si mal structuré ;
+- ou **ne pas réinitialiser vos widgets JS** lors de modifications dynamiques.
+
+Exemple concret :
+> Depuis la version 3.5, le système recharge dynamiquement certaines zones de contenu après qu’un plugin a été déplacé, ajouté ou supprimé. Cela signifie que **votre frontend doit être prêt à recharger dynamiquement ses propres composants** (carrousel, sliders, graphiques JS, etc.).
+
+---
+
+## 🧩 Exemple d’intégration avec Less.js
+
+Si vous utilisez un préprocesseur comme **Less.js**, il se peut que vos modifications CSS **ne soient pas rechargées** après une opération sur un plugin.
+
+🛠️ Pour y remédier, vous pouvez écouter l’événement `cms-content-refresh` généré par django CMS :
+
+
+```html
+{% if request.toolbar and request.toolbar.edit_mode_active %}
+<script>
+CMS.$(window).on('cms-content-refresh', function () {
+     less.refresh(); // Recharge votre CSS Less dynamiquement
+});
+</script>
+{% endif %}
+```
+
+✅ À placer juste après le JavaScript de la toolbar dans vos templates.
+
+---
+
+## 🎯 Conseils pratiques
+
+- **N’utilisez pas de JavaScript inline** dans vos plugins sans gestion de rechargement.
+- **Initialisez vos composants dans un gestionnaire `cms-content-refresh`** si besoin.
+- Utilisez `CMS.$` (jQuery spécifique à django CMS) pour cibler les événements internes.
+
+---
+
+## 📌 En résumé
+
+| Élément                          | Comportement dans django CMS |
+|----------------------------------|------------------------------|
+| HTML/CSS personnalisé            | Totalement libre             |
+| Framework frontend imposé       | Aucun                        |
+| Impact en édition               | Oui, si widgets ou CSS dynamiques |
+| Solution                        | Écouter `cms-content-refresh` |
+
+---
+
+🧠 **Astuce** : si vos composants ne se réinitialisent pas après un ajout/suppression de plugin, pensez à vérifier que leurs initialisations sont bien déclenchées **à chaque mise à jour du DOM**.
+
