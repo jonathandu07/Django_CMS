@@ -1120,7 +1120,69 @@ for content in PageContent.admin_manager.filter(page=my_page).current_content():
 
 ---
 
-## 📚 Pour aller plus loin
 
-Consulte la documentation officielle :
-➡️ https://github.com/django-cms/djangocms-versioning
+# 🌐 Gestion multilingue avec django CMS
+
+## Concepts de base
+
+django CMS prend en charge **plusieurs langues** de manière avancée. Il est capable d’afficher le contenu dans différentes langues, de proposer des **langues de repli** si une traduction est absente, et de **déterminer la langue préférée de l’utilisateur** de façon intelligente.
+
+---
+
+## 🧠 Comment django CMS détermine la langue préférée de l’utilisateur ?
+
+Il s’appuie sur le comportement standard de Django, en suivant cet ordre :
+
+1. **Préfixe de langue dans l’URL** (`/en/`, `/fr/`, etc.)
+2. **Langue stockée en session**
+3. **Cookie de langue (`django_language`)**
+4. **Langue préférée du navigateur** (`Accept-Language` header)
+
+Par défaut, **aucune session ni cookie de langue n’est utilisée**.
+
+👉 Pour activer les cookies de langue :  
+Ajoute `cms.middleware.language.LanguageCookieMiddleware` dans `MIDDLEWARE` de ton `settings.py`.
+
+---
+
+## 🗂️ Quelle langue est servie ?
+
+Une fois la langue déterminée, django CMS vérifie si du contenu existe dans cette langue. Il suit ensuite la logique suivante :
+
+- Si la langue est disponible : ✅ le contenu est affiché dans cette langue.
+- Si la langue n’est pas disponible :
+  - Il consulte le fichier `CMS_LANGUAGES` pour chercher une **langue de repli** (`fallbacks`).
+  - Il sert le contenu dans une des langues définies comme fallback, si disponible.
+
+---
+
+## 📋 Et les menus ?
+
+Le comportement du menu est influencé par la configuration suivante :
+
+```python
+CMS_LANGUAGES = {
+    'default': {
+        'hide_untranslated': True,
+        ...
+    },
+    ...
+}
+```
+
+- Si `hide_untranslated = True` (valeur par défaut) :
+  - Les pages **non traduites dans la langue actuelle** ne s’affichent **pas du tout** dans le menu.
+- Si tu veux afficher quand même les pages, même sans traduction, mets cette option à `False`.
+
+---
+
+## ✅ Bonnes pratiques
+
+- Traduis au moins la page d’accueil dans toutes les langues disponibles.
+- Active les cookies de langue pour offrir une meilleure expérience utilisateur.
+- Utilise `fallbacks` pour éviter les pages vides si une langue manque.
+
+---
+
+💡 **Conclusion**  
+django CMS gère très bien le multilingue si on configure correctement les langues disponibles, les fallback et le comportement du menu.
