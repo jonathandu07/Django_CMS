@@ -1603,3 +1603,100 @@ color: var(--dca-primary, var(--primary, #00bbff));
 - Gris : `var(--dca-gray, var(--body-quiet-color, #666))`
 - Primaire : `var(--dca-primary, var(--primary, #0bf))`
 - Noir : `var(--dca-black, var(--body-fg, #000))`
+
+
+---
+
+
+# 🧭 Fonctionnement du système de menus dans django CMS
+
+## 🌳 1. Concepts de base : les "Soft Roots"
+
+### 🔹 Qu’est-ce qu’un *Soft Root* ?
+Un *soft root* est une page définie comme **point de départ local** d’un menu. Plutôt que d'afficher l’arborescence complète du site depuis la racine, le menu commence **à partir du soft root le plus proche**.
+
+### 🔹 Pourquoi c’est utile ?
+Si ton site a une structure de navigation très profonde (plusieurs niveaux), cela évite d’afficher un menu trop chargé et difficile à lire.
+
+#### 🧪 Exemple :
+Sans soft root :  
+`Accueil > Faculté de Médecine > Département > Sous-département > Sujet > Sous-sujet`
+
+Avec un soft root défini au niveau du **Département**, le menu affiche simplement :  
+`Département > Sujet > Sous-sujet`
+
+---
+
+## ⚙️ 2. Architecture du système de menus
+
+Le système de menus dans django CMS **n’est pas monolithique**. Il repose sur des composants indépendants qui collaborent :
+
+- 🔸 **Générateurs de menus** : construisent la liste initiale des nœuds du menu
+- 🔸 **Modificateurs** : ajustent dynamiquement ces nœuds selon des règles (ex. : cacher certains niveaux, supprimer des parties non pertinentes)
+
+---
+
+## 🏗️ 3. Les composants techniques
+
+### 🧱 Les nœuds (`NavigationNode`)
+Chaque élément de menu est un objet avec :
+- un **titre**
+- une **URL**
+- un **parent**
+- une **liste d’enfants**
+- un attribut `attr` pour y stocker des données personnalisées
+
+⚠️ Tous les nœuds ne représentent **pas forcément** des pages django CMS.
+
+---
+
+## 🚧 4. Générateurs de menus
+
+Les générateurs sont des classes héritées de `menus.base.Menu`.  
+Exemple : `cms.menu.CMSMenu`
+
+Leur méthode principale est :
+```python
+get_nodes()
+```
+Elle retourne la liste initiale des nœuds du menu, souvent basée sur les objets `Page` de la base de données.
+
+---
+
+## 🛠️ 5. Modificateurs de menus
+
+Ce sont des classes héritant de `menus.base.Modifier`, qui modifient les nœuds selon des règles.
+
+Exemples :
+- `cms.menu.SoftRootCutter` : coupe les nœuds hors du sous-arbre d’un *soft root*
+- `cms.menu.NavExtender` : ajoute des entrées de menus externes
+- `menus.modifiers.AuthVisibility` : supprime les nœuds non accessibles à l’utilisateur
+- `menus.modifiers.Level` : attribue le niveau (profondeur) à chaque nœud
+
+Ils utilisent la méthode :
+```python
+modify(request, nodes, namespace, root_id, post_cut, breadcrumb)
+```
+
+Certains modifient **avant** et d’autres **après** la découpe du menu (`post_cut` = True/False).
+
+---
+
+## 🧩 6. Cycle de vie d’un menu (ex: `{% show_menu %}`)
+
+Quand tu utilises le tag `{% show_menu %}` dans un template :
+1. Appel de `get_context()` → commence la construction du menu
+2. Appel à `MenuPool.get_nodes()` → génère tous les nœuds disponibles
+3. Coupe les niveaux inutiles (`cut_levels`)
+4. Applique les **modificateurs** (`apply_modifiers`)
+5. Retourne le menu dans le contexte de rendu
+
+---
+
+## 🧠 7. Ce qu’il faut retenir
+
+- Le système est **modulaire et extensible**
+- Il repose sur une **liste de nœuds navigables**
+- Chaque niveau de transformation (générateur/modificateur) est **enregistré et appliqué dynamiquement**
+- Les soft roots permettent d’**adapter le menu à son contexte**
+- Tu peux facilement créer des menus personnalisés en héritant des classes de base
