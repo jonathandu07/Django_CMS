@@ -1038,4 +1038,89 @@ Tu peux créer une **classe de configuration d’AppHook** avec des champs spéc
 
 ---
 
-🎉 Avec les AppHooks, tu peux intégrer n'importe quelle application Django dans l'arborescence CMS avec une flexibilité maximale !
+# 📰 Système de publication dans django CMS
+
+## 📌 Comportement par défaut
+
+Sans système de versioning, **toutes les pages sont publiées immédiatement** après enregistrement. Cela signifie que toute modification devient immédiatement visible sur le site public.
+
+## 🧩 Ajouter un système de versioning
+
+Pour contrôler le cycle de vie des pages (brouillon, publication, archivage…), on peut utiliser [`djangocms-versioning`](https://github.com/django-cms/djangocms-versioning). Ce module permet de gérer plusieurs versions d’un même contenu avec différents états.
+
+> 💡 Bien que centré ici sur les pages, ce système peut aussi s’appliquer à d’autres objets comme les alias (via `djangocms-alias`).
+
+---
+
+## 🗂️ États de version
+
+Chaque page (`Page`) contient un ou plusieurs objets `PageContent`, chacun représentant le contenu dans une langue spécifique. Le versioning s’applique à ces `PageContent`.
+
+Voici les **états possibles** :
+
+- `draft` (brouillon) :  
+  ➤ Modifiable. Une seule version brouillon par langue.  
+  ➤ Non visible au public.
+
+- `published` (publiée) :  
+  ➤ Version en ligne, visible par tous.  
+  ➤ Non modifiable. Toute modification crée une nouvelle version brouillon.
+
+- `unpublished` (dépubliée) :  
+  ➤ Ancienne version retirée de la publication.  
+  ➤ Plusieurs versions peuvent coexister.
+
+- `archived` (archivée) :  
+  ➤ Jamais publiée, mise de côté pour usage futur.  
+  ➤ Peut être retransformée en brouillon.
+
+> 📌 Chaque brouillon génère un **nouveau numéro de version**.
+
+---
+
+## 🧑‍💻 Accès aux contenus en code
+
+Par défaut, seules les versions **publiées** sont accessibles :
+
+```python
+PageContent.objects.filter(language="en")  # Ne retourne que les versions publiées
+```
+
+Pour accéder aux versions non publiées, utilise le **manager admin** :
+
+```python
+PageContent.admin_manager.filter(page=my_page, language="en")  # Toutes les versions
+```
+
+### 🔍 Récupérer un brouillon en code :
+
+```python
+from djangocms_versioning.constants import DRAFT
+from djangocms_versioning.models import Version
+
+version = Version.objects.get(content__page=my_page, content__language="en", status=DRAFT)
+draft_content = version.content
+```
+
+### 🔄 Accéder à la version “courante” (brouillon ou publiée)
+
+```python
+for content in PageContent.admin_manager.filter(page=my_page).current_content():
+    if content.versions.first().state == DRAFT:
+        # Faire quelque chose avec le brouillon
+```
+
+---
+
+## ⚠️ Points importants
+
+- Une page **publiée est visible** même si sa page parente ne l’est pas.
+- Une **apphook** reliée à une page prend le contrôle de tous les chemins en dessous (`/ma-page/...`).
+- La versioning ne fonctionne **qu’après publication** d’une page liée au contenu versionné.
+
+---
+
+## 📚 Pour aller plus loin
+
+Consulte la documentation officielle :
+➡️ https://github.com/django-cms/djangocms-versioning
