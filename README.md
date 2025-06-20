@@ -649,4 +649,134 @@ python manage.py runserver
 
 ---
 
-🎉 Tu as maintenant lié l'application Django `polls` dynamiquement à ton site CMS !
+# 🧰 Étendre la barre d’outils (Toolbar) dans django CMS
+
+Tu peux personnaliser la barre d’outils de django CMS pour intégrer des menus ou boutons liés à tes propres apps, ici `polls`.
+
+---
+
+## 🪄 Ajouter un menu "Sondages"
+
+Dans l’app `polls_cms_integration`, crée un fichier `cms_toolbars.py` :
+
+```python
+from cms.toolbar_base import CMSToolbar
+from cms.toolbar_pool import toolbar_pool
+from polls.models import Poll
+
+class PollToolbar(CMSToolbar):
+
+    def populate(self):
+        self.toolbar.get_or_create_menu(
+            'polls_cms_integration-polls',  # identifiant unique
+            'Sondages'                       # nom du menu dans l’UI
+        )
+
+toolbar_pool.register(PollToolbar)
+```
+
+Redémarre le serveur (`runserver`) pour voir le menu dans la toolbar sur toutes les pages.
+
+---
+
+## 🧱 Ajouter des éléments au menu
+
+Ajoute des liens pour :
+- afficher la liste des sondages
+- créer un nouveau sondage
+
+```python
+from cms.utils.urlutils import admin_reverse
+
+class PollToolbar(CMSToolbar):
+
+    def populate(self):
+        menu = self.toolbar.get_or_create_menu('polls_cms_integration-polls', 'Sondages')
+
+        menu.add_sideframe_item(
+            name='Liste des sondages',
+            url=admin_reverse('polls_poll_changelist'),
+        )
+
+        menu.add_modal_item(
+            name='Ajouter un sondage',
+            url=admin_reverse('polls_poll_add'),
+        )
+```
+
+---
+
+## 🖱️ Ajouter des boutons (facultatif)
+
+Tu peux aussi ajouter des **boutons** dans la barre d’outils :
+
+```python
+def populate(self):
+    buttonlist = self.toolbar.add_button_list()
+
+    buttonlist.add_sideframe_button(
+        name='Liste des sondages',
+        url=admin_reverse('polls_poll_changelist'),
+    )
+
+    buttonlist.add_modal_button(
+        name='Ajouter un sondage',
+        url=admin_reverse('polls_poll_add'),
+    )
+```
+
+---
+
+## 🎯 Limiter l’affichage aux pages pertinentes
+
+Pour ne pas afficher le menu sur toutes les pages, ajoute ceci :
+
+```python
+class PollToolbar(CMSToolbar):
+    supported_apps = ['polls']  # l’app ciblée
+
+    def populate(self):
+        if not self.is_current_app:
+            return
+        ...
+```
+
+---
+
+## ✅ Code complet : `cms_toolbars.py`
+
+```python
+from cms.utils.urlutils import admin_reverse
+from cms.toolbar_base import CMSToolbar
+from cms.toolbar_pool import toolbar_pool
+from polls.models import Poll
+
+class PollToolbar(CMSToolbar):
+    supported_apps = ['polls']
+
+    def populate(self):
+        if not self.is_current_app:
+            return
+
+        menu = self.toolbar.get_or_create_menu('polls_cms_integration-polls', 'Sondages')
+
+        menu.add_sideframe_item(
+            name='Liste des sondages',
+            url=admin_reverse('polls_poll_changelist'),
+        )
+
+        menu.add_modal_item(
+            name='Ajouter un sondage',
+            url=admin_reverse('polls_poll_add'),
+        )
+
+        buttonlist = self.toolbar.add_button_list()
+        buttonlist.add_sideframe_button('Liste des sondages', admin_reverse('polls_poll_changelist'))
+        buttonlist.add_modal_button('Ajouter un sondage', admin_reverse('polls_poll_add'))
+
+toolbar_pool.register(PollToolbar)
+```
+
+---
+
+🎉 Tu as maintenant un menu dédié dans la barre d’outils de django CMS, avec accès rapide à la gestion des sondages.
